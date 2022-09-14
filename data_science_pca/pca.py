@@ -4,21 +4,30 @@
 import numpy as np
 
 
-def simple_normalize(data):
+def normalize_2d(data):
     """Calculates normalization by taking zero mean and dividing by stdev.
 
     Args:
-        data (np.array): Target data.
+        data (np.array): Target data. Must be 2D.
 
     Returns:
         np.array: Tranfsformed data.
     """
-    data = np.array(data)
-    for col in list(range(0, data.shape[1])):
+    # Check data type
+    if type(data) != type(np.array([])):
+        raise TypeError("Input must be a np.array.")
+    # Check dimensions
+    try:
+        data.shape[1]
+    except IndexError:
+        print("Input must be 2-dimensional.")
+        raise
+    transformed_data = np.zeros(shape=data.shape)
+    for col in range(0, data.shape[1]):
         old_col = data[:, col]
-        new_col = np.array([(x - old_col.mean())/old_col.std() for x in old_col])
-        data[:, col] = new_col
-    return data
+        new_col = [(value - old_col.mean())/old_col.std() for value in old_col]
+        transformed_data[:, col] = new_col
+    return transformed_data
 
 
 def whitener(data):
