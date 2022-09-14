@@ -1,4 +1,4 @@
-"""Tests for pca module.
+"""Tests for PCA module.
 """
 
 import numpy as np
