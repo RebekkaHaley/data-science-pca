@@ -18,7 +18,7 @@ def check_data_validity(data) -> None:
         raise ValueError(f"Found {data.ndim} dimensions. Input must be 2-dimensional.")
 
 
-class Standardizer2Dimensions():
+class TwoDimensionStandardizer():
     """Calculates standardization.
 
     Args:
