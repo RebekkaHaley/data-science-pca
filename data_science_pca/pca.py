@@ -4,14 +4,11 @@
 import numpy as np
 
 
-def standardize_2d(data):
-    """Calculates normalization by taking zero mean and dividing by stdev.
+def check_data_validity(data) -> None:
+    """Runs checks for whether given data is valid.
 
     Args:
         data (np.array): Target data. Must be 2D.
-
-    Returns:
-        np.array: Tranfsformed data.
     """
     # Check data type
     if type(data) != type(np.array([])):
@@ -22,6 +19,18 @@ def standardize_2d(data):
     except IndexError:
         print("Input must be 2-dimensional.")
         raise
+
+
+def standardize_2d(data):
+    """Calculates normalization by taking zero mean and dividing by stdev.
+
+    Args:
+        data (np.array): Target data. Must be 2D.
+
+    Returns:
+        np.array: Tranfsformed data.
+    """
+    check_data_validity(data=data)
     transformed_data = np.zeros(shape=data.shape)
     for col in range(0, data.shape[1]):
         old_col = data[:, col]
