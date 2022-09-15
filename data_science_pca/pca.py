@@ -39,30 +39,42 @@ def standardize_2d(data):
     return transformed_data
 
 
-def whitener(data):
+class Whitener():
     """Calculates whitening.
 
-    Taken for colab week 2.
-
     Args:
-        Inputs 2D data set.
-
-    Returns:
-        Output whiten & inv. whiten functions.
+        data (np.array): Target data. Must be 2D.
     """
-    sigma = np.cov(data, rowvar=False)
-    mu = np.mean(data, axis=0)
-    values, vectors = np.linalg.eig(sigma)
-    l = np.diag(values ** -0.5)
+    def __init__(self, data):
+        check_data_validity(data=data)
+        self.sigma = np.cov(data, rowvar=False)
+        self.mu = np.mean(data, axis=0)
+        self.values, self.vectors = np.linalg.eig(self.sigma)
+        self.l = np.diag(self.values ** -0.5)
 
 
-    def func(datapoints):
+    def _func_(self, datapoints):
+        """todo
+        """
         return np.array( [ l.dot(vectors.T.dot(d - mu)) for d in datapoints ])
 
 
-    def inv_func(datapoints):
+    def _inv_func_(self, datapoints):
+        """todo
+        """
         return np.array( [ np.linalg.inv(vectors.T).dot(np.linalg.inv(l).dot(d)) + mu for d in datapoints ] )
-    return func, inv_func
+
+
+    def calculate(self):
+        """todo
+
+        Returns:
+            func (todo): Whiten function.
+            inv_func (todo): Inverse whiten function.
+        """
+        func = self._func_()
+        inv_func = self._inv_func_()
+        return func, inv_func
 
 
 def pca(X, n_components):
