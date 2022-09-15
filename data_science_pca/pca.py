@@ -12,13 +12,10 @@ def check_data_validity(data) -> None:
     """
     # Check data type
     if type(data) != type(np.array([])):
-        raise TypeError("Input must be a np.array.")
+        raise TypeError(f"Found {type(data)} type. Input must be a np.array.")
     # Check dimensions
-    try:
-        data.shape[1]
-    except IndexError:
-        print("Input must be 2-dimensional.")
-        raise
+    if data.ndim != 2:
+        raise ValueError(f"Found {data.ndim} dimensions. Input must be 2-dimensional.")
 
 
 class Standardizer2Dimensions():
