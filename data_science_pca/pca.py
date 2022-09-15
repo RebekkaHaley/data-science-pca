@@ -8,11 +8,11 @@ def check_data_validity(data) -> None:
     """Runs checks for whether given data is valid.
 
     Args:
-        data (np.array): Target data. Must be 2D.
+        data (numpy.ndarray): Target data. Must be 2D.
     """
     # Check data type
-    if type(data) != type(np.array([])):
-        raise TypeError(f"Found {type(data)} type. Input must be a np.array.")
+    if not isinstance(data, (np.ndarray, np.generic)):
+        raise TypeError(f"Found {type(data)} type. Input must be a numpy.ndarray.")
     # Check dimensions
     if data.ndim != 2:
         raise ValueError(f"Found {data.ndim} dimensions. Input must be 2-dimensional.")
@@ -20,9 +20,6 @@ def check_data_validity(data) -> None:
 
 class TwoDimensionStandardizer():
     """Calculates standardization.
-
-    Args:
-        data (np.array): Target data. Must be 2D.
     """
     def __init__(self):
         self.data = None
@@ -31,8 +28,11 @@ class TwoDimensionStandardizer():
     def fit_transform(self, data):
         """todo
 
+        Args:
+            data (numpy.ndarray): Target data. Must be 2D.
+
         Returns:
-            np.array: Tranfsformed data.
+            numpy.ndarray: Tranfsformed data.
         """
         check_data_validity(data=data)
         transformed_data = np.zeros(shape=data.shape)
@@ -47,7 +47,7 @@ class Whitener():
     """Calculates whitening.
 
     Args:
-        data (np.array): Target data. Must be 2D.
+        data (numpy.ndarray): Target data. Must be 2D.
     """
     def __init__(self):
         self.data = None
@@ -92,37 +92,50 @@ class PrincipalComponentAnalysis():
     """Calculates PCA.
 
     Args:
-        Input 2D np.array of data sets.
+        n_components (int): Num of componets to retain. Max value is num of columns in input data.
     """
     def __init__(self, n_components=None):
         self.n_components = n_components
+        self.data_mean = None
+        self.covariance = None
+        self.eigenvalues = None
+        self.eigenvectors = None
+        self.components = None
+        self.feature_vector = None
 
 
     def fit(self, data):
         """todo
 
+        Args:
+            data (numpy.ndarray): Target data. Must be 2D.
+
         Returns:
-            Output np.array of PCA data sets.
+            numpy.ndarray: Output np.array of PCA data sets.
         """
         check_data_validity(data=data)
         self.data_mean = np.mean(data, axis=0)
         self.covariance = np.cov(data, rowvar=False)
         self.eigenvalues, self.eigenvectors = np.linalg.eig(self.covariance)
-        self.components = sorted(zip(self.eigenvalues, self.eigenvectors.T), key=lambda vv: vv[0], reverse=True)
+        zipped = zip(self.eigenvalues, self.eigenvectors.T)
+        self.components = sorted(zipped, key=lambda vv: vv[0], reverse=True)
         if self.n_components is None:
-            self.n_components == data.shape[1]
+            self.n_components = data.shape[1]
         self.feature_vector = self.components[:self.n_components]
 
 
     def transform(self, data):
         """todo
 
+        Args:
+            data (numpy.ndarray): Target data. Must be 2D.
+
         Returns:
-            Output np.array of PCA data sets.
+            numpy.ndarray: Output np.array of PCA data sets.
         """
         check_data_validity(data=data)
-        output_matrix = []
+        output = []
         for point in data:
-            output_vector = [vector.dot(point - self.data_mean) for (value, vector) in self.feature_vector]
-            output_matrix.append(output_vector)
-        return np.array(output_matrix)
+            output_vec = [vector.dot(point - self.data_mean) for (_, vector) in self.feature_vector]
+            output.append(output_vec)
+        return np.array(output)
