@@ -4,7 +4,7 @@
 import numpy as np
 
 
-def normalize_2d(data):
+def standardize_2d(data):
     """Calculates normalization by taking zero mean and dividing by stdev.
 
     Args:
