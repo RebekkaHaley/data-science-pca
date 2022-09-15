@@ -49,76 +49,80 @@ class Whitener():
     Args:
         data (np.array): Target data. Must be 2D.
     """
-    def __init__(self, data):
-        check_data_validity(data=data)
-        self.sigma = np.cov(data, rowvar=False)
-        self.mu = np.mean(data, axis=0)
-        self.values, self.vectors = np.linalg.eig(self.sigma)
-        self.l = np.diag(self.values ** -0.5)
+    def __init__(self):
+        self.data = None
 
 
     def _func_(self, datapoints):
         """todo
         """
-        return np.array( [ l.dot(vectors.T.dot(d - mu)) for d in datapoints ])
+        output = np.zeros(datapoints.shape)
+        for i, point in enumerate(datapoints):
+            output[i, :] = self.l.dot(self.vectors.T.dot(point - self.mu))
+        return output
 
 
     def _inv_func_(self, datapoints):
         """todo
         """
-        return np.array( [ np.linalg.inv(vectors.T).dot(np.linalg.inv(l).dot(d)) + mu for d in datapoints ] )
+        output = np.zeros(datapoints.shape)
+        for i, point in enumerate(datapoints):
+            output[i, :] = np.linalg.inv(self.vectors.T).dot(np.linalg.inv(self.l).dot(point)) + self.mu
+        return output
 
 
-    def calculate(self):
+    def fit_transform(self, data):
         """todo
 
         Returns:
             func (todo): Whiten function.
             inv_func (todo): Inverse whiten function.
         """
-        func = self._func_()
-        inv_func = self._inv_func_()
+        check_data_validity(data=data)
+        self.sigma = np.cov(data, rowvar=False)
+        self.mu = np.mean(data, axis=0)
+        self.values, self.vectors = np.linalg.eig(self.sigma)
+        self.l = np.diag(self.values ** -0.5)
+        func = self._func_(datapoints=data)
+        inv_func = self._inv_func_(datapoints=data)
         return func, inv_func
 
 
-def pca(X, n_components):
+class PrincipalComponentAnalysis():
     """Calculates PCA.
 
-    Taken for colab week 2.
-
     Args:
         Input 2D np.array of data sets.
-
-    Returns:
-        Output np.array of PCA data sets.
     """
-    pca = PCA(n_components=n_components)
-    pca.fit(X)
-    X_pca = pca.transform(X)
-    return X_pca
+    def __init__(self, n_components=None):
+        self.n_components = n_components
 
 
-def pca_transform(data):
-    """
+    def fit(self, data):
+        """todo
 
-    Taken for colab week 2.
+        Returns:
+            Output np.array of PCA data sets.
+        """
+        check_data_validity(data=data)
+        self.data_mean = np.mean(data, axis=0)
+        self.covariance = np.cov(data, rowvar=False)
+        self.eigenvalues, self.eigenvectors = np.linalg.eig(self.covariance)
+        self.components = sorted(zip(self.eigenvalues, self.eigenvectors.T), key=lambda vv: vv[0], reverse=True)
+        if self.n_components is None:
+            self.n_components == data.shape[1]
+        self.feature_vector = self.components[:self.n_components]
 
-    Args:
-        Input 2D np.array of data sets.
 
-    Returns:
-        Output np.array of PCA data sets.
-    """
-    mu = np.mean(data, axis=0)
-    sigma = np.cov(data, rowvar=False)
-    values, vectors = np.linalg.eig(sigma)
-    components = sorted( zip(values, vectors.T), key = lambda vv: vv[0], reverse=True )
+    def transform(self, data):
+        """todo
 
-
-    def func(datapoints):
-        result = []
-        for d in datapoints:
-            t = [ vector.dot(d - mu) for (value, vector) in components ]
-            result.append(t)
-        return np.array(result)
-    return func
+        Returns:
+            Output np.array of PCA data sets.
+        """
+        check_data_validity(data=data)
+        output_matrix = []
+        for point in data:
+            output_vector = [vector.dot(point - self.data_mean) for (value, vector) in self.feature_vector]
+            output_matrix.append(output_vector)
+        return np.array(output_matrix)
