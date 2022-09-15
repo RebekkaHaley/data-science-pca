@@ -21,22 +21,29 @@ def check_data_validity(data) -> None:
         raise
 
 
-def standardize_2d(data):
-    """Calculates normalization by taking zero mean and dividing by stdev.
+class Standardizer2Dimensions():
+    """Calculates standardization.
 
     Args:
         data (np.array): Target data. Must be 2D.
-
-    Returns:
-        np.array: Tranfsformed data.
     """
-    check_data_validity(data=data)
-    transformed_data = np.zeros(shape=data.shape)
-    for col in range(0, data.shape[1]):
-        old_col = data[:, col]
-        new_col = [(value - old_col.mean())/old_col.std() for value in old_col]
-        transformed_data[:, col] = new_col
-    return transformed_data
+    def __init__(self):
+        self.data = None
+
+
+    def fit_transform(self, data):
+        """todo
+
+        Returns:
+            np.array: Tranfsformed data.
+        """
+        check_data_validity(data=data)
+        transformed_data = np.zeros(shape=data.shape)
+        for col in range(0, data.shape[1]):
+            old_col = data[:, col]
+            new_col = [(value - old_col.mean())/old_col.std() for value in old_col]
+            transformed_data[:, col] = new_col
+        return transformed_data
 
 
 class Whitener():
