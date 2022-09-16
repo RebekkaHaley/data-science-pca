@@ -60,7 +60,6 @@ class PrincipalComponentAnalysis():
         self.eigenvalues = None
         self.eigenvectors = None
         self.components = None
-        self.feature_vector = None
         self.decomp = None
 
 
@@ -81,7 +80,7 @@ class PrincipalComponentAnalysis():
         self.components = sorted(zipped, key=lambda vv: vv[0], reverse=True)
         if self.n_components is None:
             self.n_components = data.shape[1]
-        self.feature_vector = self.components[:self.n_components]
+        self.components = self.components[:self.n_components]
 
 
     def whitener(self, data):
@@ -94,7 +93,7 @@ class PrincipalComponentAnalysis():
             numpy.ndarray: todo
         """
         check_data_validity(data=data)
-        self.decomp = np.diag([eigenvalue ** -0.5 for (eigenvalue, _) in self.feature_vector])
+        self.decomp = np.diag([eigenvalue ** -0.5 for (eigenvalue, _) in self.components])
         return data.dot(self.decomp)
 
 
@@ -110,8 +109,9 @@ class PrincipalComponentAnalysis():
         check_data_validity(data=data)
         output = np.zeros(data.shape)
         for i, point in enumerate(data):
-            row = [eigen_vec.dot(point - self.data_mean) for (_, eigen_vec) in self.feature_vector]
+            row = [eigen_vec.dot(point - self.data_mean) for (_, eigen_vec) in self.components]
             output[i, :] = row
+        output = output[:, :self.n_components]
         if self.whiten:
             return self.whitener(data=output)
         return output
