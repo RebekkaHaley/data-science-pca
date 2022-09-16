@@ -110,7 +110,8 @@ class PrincipalComponentAnalysis():
         check_data_validity(data=data)
         output = np.zeros(data.shape)
         for i, point in enumerate(data):
-            output[i, :] = [eigenvector.dot(point - self.data_mean) for (_, eigenvector) in self.feature_vector]
+            row = [eigen_vec.dot(point - self.data_mean) for (_, eigen_vec) in self.feature_vector]
+            output[i, :] = row
         if self.whiten:
             return self.whitener(data=output)
         return output
@@ -129,6 +130,6 @@ class PrincipalComponentAnalysis():
         output = np.zeros(data.shape)
         for i, point in enumerate(data):
             # output[i, :] = self.decomp.dot(self.eigenvectors.T.dot(point - self.data_mean))  # WIP: whiten version
-            temp = np.linalg.inv(self.eigenvectors.T).dot(np.linalg.inv(self.decomp).dot(point))
-            output[i, :] = temp + self.data_mean
+            row = np.linalg.inv(self.eigenvectors.T).dot(np.linalg.inv(self.decomp).dot(point))
+            output[i, :] = row + self.data_mean
         return output
