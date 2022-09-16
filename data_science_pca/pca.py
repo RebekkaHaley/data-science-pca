@@ -85,7 +85,7 @@ class PrincipalComponentAnalysis():
 
 
     def whitener(self, data):
-        """Whiten function.
+        """Whitens data by calculating eigenvalue decomposition of the covariance matrix.
 
         Args:
             data (numpy.ndarray): Target data. Must be 2D.
@@ -94,7 +94,7 @@ class PrincipalComponentAnalysis():
             numpy.ndarray: todo
         """
         check_data_validity(data=data)
-        self.decomp = np.diag(self.eigenvalues ** -0.5)
+        self.decomp = np.diag([eigenvalue ** -0.5 for (eigenvalue, _) in self.feature_vector])
         return data.dot(self.decomp)
 
 
@@ -110,8 +110,7 @@ class PrincipalComponentAnalysis():
         check_data_validity(data=data)
         output = np.zeros(data.shape)
         for i, point in enumerate(data):
-            output[i, :] = [vector.dot(point - self.data_mean) for (_, vector) in self.feature_vector]
-            # output[i, :] = self.decomp.dot(self.eigenvectors.T.dot(point - self.data_mean))  # WIP: whiten version
+            output[i, :] = [eigenvector.dot(point - self.data_mean) for (_, eigenvector) in self.feature_vector]
         if self.whiten:
             return self.whitener(data=output)
         return output
@@ -129,6 +128,7 @@ class PrincipalComponentAnalysis():
         check_data_validity(data=data)
         output = np.zeros(data.shape)
         for i, point in enumerate(data):
+            # output[i, :] = self.decomp.dot(self.eigenvectors.T.dot(point - self.data_mean))  # WIP: whiten version
             temp = np.linalg.inv(self.eigenvectors.T).dot(np.linalg.inv(self.decomp).dot(point))
             output[i, :] = temp + self.data_mean
         return output
