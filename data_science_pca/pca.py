@@ -117,7 +117,7 @@ class PrincipalComponentAnalysis():
         return output
 
 
-    def inverse_transform(self, data):
+    def reverse_transform(self, data):
         """todo. Inverse whiten function.
 
         Args:
@@ -127,9 +127,7 @@ class PrincipalComponentAnalysis():
             numpy.ndarray: todo.
         """
         check_data_validity(data=data)
-        output = np.zeros(data.shape)
-        for i, point in enumerate(data):
-            # output[i, :] = self.decomp.dot(self.eigenvectors.T.dot(point - self.data_mean))  # WIP: whiten version
-            row = np.linalg.inv(self.eigenvectors.T).dot(np.linalg.inv(self.decomp).dot(point))
-            output[i, :] = row + self.data_mean
-        return output
+        #     = self.decomp.dot(self.eigenvectors.T.dot(point - self.data_mean))  # WIP: whiten func
+        #     = np.linalg.inv(self.eigenvectors.T).dot(np.linalg.inv(self.decomp).dot(point)) + self.data_mean  # WIP: inv whiten func
+        eigenvectors = np.array([ei_vec for (_, ei_vec) in self.components])
+        return np.dot(data, eigenvectors) + self.data_mean
