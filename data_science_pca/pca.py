@@ -118,7 +118,7 @@ class PrincipalComponentAnalysis():
 
 
     def reverse_transform(self, data):
-        """todo. Inverse whiten function.
+        """todo. Reverse PCA transform.
 
         Args:
             data (numpy.ndarray): Target data. Must be 2D.
