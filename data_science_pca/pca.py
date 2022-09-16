@@ -19,14 +19,14 @@ def check_data_validity(data) -> None:
 
 
 class TwoDimensionStandardizer():
-    """Calculates standardization.
+    """Calculates standardization via normalization of data.
     """
     def __init__(self):
         self.data = None
 
 
     def fit_transform(self, data):
-        """todo
+        """Calculates normalization transform for given data.
 
         Args:
             data (numpy.ndarray): Target data. Must be 2D.
@@ -43,65 +43,25 @@ class TwoDimensionStandardizer():
         return transformed_data
 
 
-class Whitener():
-    """Calculates whitening.
-
-    Args:
-        data (numpy.ndarray): Target data. Must be 2D.
-    """
-    def __init__(self):
-        self.data = None
-
-
-    def _func_(self, datapoints):
-        """todo
-        """
-        output = np.zeros(datapoints.shape)
-        for i, point in enumerate(datapoints):
-            output[i, :] = self.l.dot(self.vectors.T.dot(point - self.mu))
-        return output
-
-
-    def _inv_func_(self, datapoints):
-        """todo
-        """
-        output = np.zeros(datapoints.shape)
-        for i, point in enumerate(datapoints):
-            output[i, :] = np.linalg.inv(self.vectors.T).dot(np.linalg.inv(self.l).dot(point)) + self.mu
-        return output
-
-
-    def fit_transform(self, data):
-        """todo
-
-        Returns:
-            func (todo): Whiten function.
-            inv_func (todo): Inverse whiten function.
-        """
-        check_data_validity(data=data)
-        self.sigma = np.cov(data, rowvar=False)
-        self.mu = np.mean(data, axis=0)
-        self.values, self.vectors = np.linalg.eig(self.sigma)
-        self.l = np.diag(self.values ** -0.5)
-        func = self._func_(datapoints=data)
-        inv_func = self._inv_func_(datapoints=data)
-        return func, inv_func
-
-
 class PrincipalComponentAnalysis():
     """Calculates PCA.
 
+    NB: The input data matrix should be observations-by-components.
+
     Args:
         n_components (int): Num of componets to retain. Max value is num of columns in input data.
+        whiten (bool): Whitens output if True.
     """
-    def __init__(self, n_components=None):
+    def __init__(self, n_components=None, whiten=False):
         self.n_components = n_components
+        self.whiten = whiten
         self.data_mean = None
         self.covariance = None
         self.eigenvalues = None
         self.eigenvectors = None
         self.components = None
         self.feature_vector = None
+        self.decomp = None
 
 
     def fit(self, data):
@@ -111,7 +71,7 @@ class PrincipalComponentAnalysis():
             data (numpy.ndarray): Target data. Must be 2D.
 
         Returns:
-            numpy.ndarray: Output np.array of PCA data sets.
+            numpy.ndarray: Output numpy.ndarray of PCA data sets.
         """
         check_data_validity(data=data)
         self.data_mean = np.mean(data, axis=0)
@@ -124,6 +84,20 @@ class PrincipalComponentAnalysis():
         self.feature_vector = self.components[:self.n_components]
 
 
+    def whitener(self, data):
+        """Whiten function.
+
+        Args:
+            data (numpy.ndarray): Target data. Must be 2D.
+
+        Returns:
+            numpy.ndarray: todo
+        """
+        check_data_validity(data=data)
+        self.decomp = np.diag(self.eigenvalues ** -0.5)
+        return data.dot(self.decomp)
+
+
     def transform(self, data):
         """todo
 
@@ -131,11 +105,30 @@ class PrincipalComponentAnalysis():
             data (numpy.ndarray): Target data. Must be 2D.
 
         Returns:
-            numpy.ndarray: Output np.array of PCA data sets.
+            numpy.ndarray: Output numpy.ndarray of PCA data sets.
         """
         check_data_validity(data=data)
-        output = []
-        for point in data:
-            output_vec = [vector.dot(point - self.data_mean) for (_, vector) in self.feature_vector]
-            output.append(output_vec)
-        return np.array(output)
+        output = np.zeros(data.shape)
+        for i, point in enumerate(data):
+            output[i, :] = [vector.dot(point - self.data_mean) for (_, vector) in self.feature_vector]
+            # output[i, :] = self.decomp.dot(self.eigenvectors.T.dot(point - self.data_mean))  # WIP: whiten version
+        if self.whiten:
+            return self.whitener(data=output)
+        return output
+
+
+    def inverse_transform(self, data):
+        """todo. Inverse whiten function.
+
+        Args:
+            data (numpy.ndarray): Target data. Must be 2D.
+
+        Returns:
+            numpy.ndarray: todo.
+        """
+        check_data_validity(data=data)
+        output = np.zeros(data.shape)
+        for i, point in enumerate(data):
+            temp = np.linalg.inv(self.eigenvectors.T).dot(np.linalg.inv(self.decomp).dot(point))
+            output[i, :] = temp + self.data_mean
+        return output
