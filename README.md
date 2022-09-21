@@ -1,5 +1,7 @@
 ## Welcome
+This repo contains code to calculate Principle Components Analysis (PCA) using python classes.
+
 todo
 
-## Principle COmponents Analysis (PCA)
+## Principle Components Analysis (PCA)
 todo
