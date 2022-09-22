@@ -61,6 +61,7 @@ class PrincipalComponentAnalysis():
         self.eigenvectors = None
         self.components = None
         self.decomp = None
+        self.feature_vector = None
 
 
     def fit(self, data):
@@ -81,6 +82,9 @@ class PrincipalComponentAnalysis():
         if self.n_components is None:
             self.n_components = data.shape[1]
         self.components = self.components[:self.n_components]
+        if self.whiten is True:
+            self.decomp = np.diag([eigenvalue ** -0.5 for (eigenvalue, _) in self.components])
+        self.feature_vector = np.array([eigen_vec for (_, eigen_vec) in self.components])
 
 
     def whitener(self, data):
@@ -93,7 +97,6 @@ class PrincipalComponentAnalysis():
             numpy.ndarray: todo
         """
         check_data_validity(data=data)
-        self.decomp = np.diag([eigenvalue ** -0.5 for (eigenvalue, _) in self.components])
         return data.dot(self.decomp)
 
 
@@ -107,11 +110,8 @@ class PrincipalComponentAnalysis():
             numpy.ndarray: Output numpy.ndarray of PCA data sets.
         """
         check_data_validity(data=data)
-        output = np.zeros(data.shape)
-        for i, point in enumerate(data):
-            row = [eigen_vec.dot(point - self.data_mean) for (_, eigen_vec) in self.components]
-            output[i, :] = row
-        output = output[:, :self.n_components]
+        data_adjust = data - self.data_mean
+        output = np.dot(self.feature_vector, data_adjust.T).T
         if self.whiten:
             return self.whitener(data=output)
         return output
@@ -127,7 +127,6 @@ class PrincipalComponentAnalysis():
             numpy.ndarray: todo.
         """
         check_data_validity(data=data)
-        #     = self.decomp.dot(self.eigenvectors.T.dot(point - self.data_mean))  # WIP: whiten func
-        #     = np.linalg.inv(self.eigenvectors.T).dot(np.linalg.inv(self.decomp).dot(point)) + self.data_mean  # WIP: inv whiten func
-        eigenvectors = np.array([ei_vec for (_, ei_vec) in self.components])
-        return np.dot(data, eigenvectors) + self.data_mean
+        if self.whiten:
+            return np.linalg.inv(self.feature_vector).dot(np.linalg.inv(self.decomp)).dot(data.T).T + self.data_mean
+        return np.dot(data, self.feature_vector) + self.data_mean
