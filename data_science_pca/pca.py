@@ -8,7 +8,7 @@ def check_data_validity(data) -> None:
     """Runs checks for whether given data is valid.
 
     Args:
-        data (numpy.ndarray): Target data. Must be 2D.
+        data (numpy.ndarray): Target data. Must be n x m dimensions.
     """
     # Check data type
     if not isinstance(data, (np.ndarray, np.generic)):
@@ -29,7 +29,7 @@ class TwoDimensionStandardizer():
         """Calculates normalization transform for given data.
 
         Args:
-            data (numpy.ndarray): Target data. Must be 2D.
+            data (numpy.ndarray): Target data. Must be n x m dimensions.
 
         Returns:
             numpy.ndarray: Tranfsformed data.
@@ -65,10 +65,10 @@ class PrincipalComponentAnalysis():
 
 
     def fit(self, data):
-        """todo
+        """Calculates and records parameters required for data transform.
 
         Args:
-            data (numpy.ndarray): Target data. Must be 2D.
+            data (numpy.ndarray): Target data. Must be n x m dimensions.
 
         Returns:
             numpy.ndarray: Output numpy.ndarray of PCA data sets.
@@ -91,23 +91,23 @@ class PrincipalComponentAnalysis():
         """Whitens data by calculating eigenvalue decomposition of the covariance matrix.
 
         Args:
-            data (numpy.ndarray): Target data. Must be 2D.
+            data (numpy.ndarray): Target data. Must be n x m dimensions.
 
         Returns:
-            numpy.ndarray: todo
+            numpy.ndarray: Array of whitened data.
         """
         check_data_validity(data=data)
         return data.dot(self.decomp)
 
 
     def transform(self, data):
-        """todo
+        """Transforms data using PCA.
 
         Args:
-            data (numpy.ndarray): Target data. Must be 2D.
+            data (numpy.ndarray): Target data. Must be n x m dimensions.
 
         Returns:
-            numpy.ndarray: Output numpy.ndarray of PCA data sets.
+            numpy.ndarray: Array of PCA data.
         """
         check_data_validity(data=data)
         data_adjust = data - self.data_mean
@@ -118,13 +118,15 @@ class PrincipalComponentAnalysis():
 
 
     def reverse_transform(self, data):
-        """todo. Reverse PCA transform.
+        """Reverses PCA transformation.
+
+        NB: Data must not be refitted in-between initial transform and its reversal.
 
         Args:
-            data (numpy.ndarray): Target data. Must be 2D.
+            data (numpy.ndarray): Target data. Must be n x m dimensions.
 
         Returns:
-            numpy.ndarray: todo.
+            numpy.ndarray: Array of PCA-reversed data.
         """
         check_data_validity(data=data)
         if self.whiten:
