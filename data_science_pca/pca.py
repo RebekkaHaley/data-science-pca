@@ -22,7 +22,7 @@ class TwoDimensionStandardizer():
     """Calculates standardization via normalization of data.
     """
     def __init__(self):
-        self.data = None
+        pass
 
 
     def fit_transform(self, data):
