@@ -128,5 +128,6 @@ class PrincipalComponentAnalysis():
         """
         check_data_validity(data=data)
         if self.whiten:
-            return np.linalg.inv(self.feature_vector).dot(np.linalg.inv(self.decomp)).dot(data.T).T + self.data_mean
+            temp = np.linalg.inv(self.feature_vector).dot(np.linalg.inv(self.decomp)).dot(data.T).T
+            return temp + self.data_mean
         return np.dot(data, self.feature_vector) + self.data_mean
