@@ -70,3 +70,25 @@ def test_principal_component_analysis_compare_sklearn():
     skl_pca.fit(RAW_DATA)
     skl_output = skl_pca.transform(RAW_DATA)
     np.allclose(test_output, skl_output, rtol=1e-09, atol=1e-09)
+
+
+def test_principal_component_analysis_whitening_compare_sklearn():
+    n_comp = RAW_DATA.shape[1]
+    whiten_bool = True
+    test_pca = PrincipalComponentAnalysis(n_components=n_comp, whiten=whiten_bool)
+    test_pca.fit(RAW_DATA)
+    test_output = test_pca.transform(RAW_DATA)
+    skl_pca = PCA(n_components=n_comp, whiten=whiten_bool)
+    skl_pca.fit(RAW_DATA)
+    skl_output = skl_pca.transform(RAW_DATA)
+    np.allclose(test_output, skl_output, rtol=1e-09, atol=1e-09)
+
+
+def test_principal_component_analysis_reverse_transform_full_recovery():
+    n_comp = RAW_DATA.shape[1]
+    whiten_bool = False
+    test_pca = PrincipalComponentAnalysis(n_components=n_comp, whiten=whiten_bool)
+    test_pca.fit(RAW_DATA)
+    test_output = test_pca.transform(RAW_DATA)
+    test_reverse = test_pca.reverse_transform(data=test_output)
+    np.allclose(test_reverse, RAW_DATA, rtol=1e-09, atol=1e-09)
